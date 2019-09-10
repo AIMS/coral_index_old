@@ -17,7 +17,7 @@ Instructions
 
 Run CI_main.R
 
-This script calls all other scripts used int eh production of this manuscript.
+This script calls all other scripts used in the production of this manuscript.
 
 Data use
 ================
