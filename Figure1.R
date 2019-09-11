@@ -457,8 +457,9 @@ tss.5.ch <- ggplot(newdata.ch.t5, aes(y=fit, x=tss)) +
 library(brms)
 library(broom)
 
-#It makes more sense to compare only the long-term aspect of this variable, so score in 2016 rather than the average
+#It makes more sense to compare only the long-term aspect of this variable, so score in 2017 rather than the average
 summary(coral.17$composition.score) # 2 NA's
+
 
 
 #2m chl
@@ -474,8 +475,12 @@ mod.ch5 = polr(composition.score ~ chl, data=coral.17 %>% filter(!is.na(composit
 mod1 = polr(composition.score ~ 1, data=coral.17 %>% filter(!is.na(composition.score) & DEPTH=='5'))
 AICc(mod.ch5)#84 support for Chl
 AICc(mod1)#86.8
-r2(mod.ch5) # 0.127
-summary(mod.ch5)
+#cox & snell pseudo R2
+N <- nrow(coral.17 %>% filter(!is.na(composition.score) & DEPTH=='5'))
+m.ll <- logLik(mod.ch5)[1]
+n.ll <- logLik(mod1)[1]
+cs.R2 <- 1 - exp(-2/N ∗(m.ll - n.ll)) #0.127
+
 
 library(effects)
 plot(allEffects(mod.ch5))
@@ -533,7 +538,7 @@ AICc(mod)#88.9 no support for tss
 AICc(mod1)#86.8
 
 
-png('metric.scores.spatial.png', width=3.4, height=6, units="in", res=300)
+png('output/Figure1.png', width=3.4, height=6, units="in", res=300)
 grid.arrange(chl.2.index,chl.5.index,
              chl.2.ma,chl.5.ma,
              tss.5.ch, chl.5.comp.p, nrow=3)
@@ -542,29 +547,38 @@ dev.off()
 #####################
 # Juveniles proportion AC v TURB
 #################
+load('data/jad.reef.RData')
+jad<-jad.reef %>% ungroup %>%
+  group_by(REEF,DEPTH) %>%
+  summarise(propAC=mean(propAC))
 
-summary(score.env2$propAC) # includes 1
-summary(score.env5$propAC) # includes 1
+jad2<-jad %>% ungroup %>% filter(DEPTH==2) %>% dplyr::select(-DEPTH)
+jad5<-jad %>% ungroup %>% filter(DEPTH==5) %>% dplyr::select(-DEPTH)
+
+score.env2j<-score.env2 %>% left_join(jad2) %>% filter(!is.na(propAC))
+score.env5j<-score.env5 %>% left_join(jad5) %>% filter(!is.na(propAC))
+summary(score.env2j$propAC) # includes 1
+summary(score.env5j$propAC) 
 
 # 2m Chl
 #####
-B.pb<-gamlss(propAC-0.0001 ~ pb(chl), data = score.env2 %>% dplyr::select(chl,propAC) , family="BE")
-pAC.c2<-gamlss(propAC-0.0001 ~ chl, data = score.env2 %>% dplyr::select(chl,propAC) , family="BE")
-B<-gamlss(propAC-0.0001 ~ 1, data = score.env2 %>% dplyr::select(chl,propAC) , family="BE")
-AICc(B.pb) #--53.8 # no support for curve
-AICc(B.l) # --53.8 # support for linear
-AICc(B) # -50.0
+B.pb<-gamlss(propAC-0.0001 ~ pb(chl), data = score.env2j %>% dplyr::select(chl,propAC) , family="BE")
+pAC.c2<-gamlss(propAC-0.0001 ~ chl, data = score.env2j %>% dplyr::select(chl,propAC) , family="BE")
+B<-gamlss(propAC-0.0001 ~ 1, data = score.env2j %>% dplyr::select(chl,propAC) , family="BE")
+AICc(B.pb) # -53.25 # no support for curve 
+AICc(pAC.c2) # -53.25 # support for linear
+AICc(B) # -47.3
 
 pred.pAC.c2<-predict(pAC.c2, se=T, type="response")
 
 summary(pAC.c2)
-Rsq(pAC.c2)#0.176
+Rsq(pAC.c2)#0.251
 
 lower.pAC.c2 <- as.vector(pred.pAC.c2$fit) - as.vector(pred.pAC.c2$se.fit*qt(0.975,df=df.residual(pAC.c2)))
 upper.pAC.c2 <- as.vector(pred.pAC.c2$fit) + as.vector(pred.pAC.c2$se.fit*qt(0.975,df=df.residual(pAC.c2)))
 fit.pAC.c2 <- as.vector(pred.pAC.c2$fit)
 
-newdata.pAC.c2 <- data.frame(chl=score.env2$chl,
+newdata.pAC.c2 <- data.frame(chl=score.env2j$chl,
                             fit=fit.pAC.c2, 
                             lower=lower.pAC.c2, 
                             upper=upper.pAC.c2)
@@ -572,7 +586,7 @@ newdata.pAC.c2 <- data.frame(chl=score.env2$chl,
 chl.2.pAC <- ggplot(newdata.pAC.c2, aes(y=fit, x=chl)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=chl), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=chl), color='black')+
-  geom_point(aes(y=propAC, x=chl), data=score.env2, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=chl), data=score.env2j, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("2 m depth")+
@@ -588,28 +602,28 @@ chl.2.pAC <- ggplot(newdata.pAC.c2, aes(y=fit, x=chl)) +
   )+
   
   annotate(geom='text', x=1,y=0.95, label='a', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=0.55,y=0.35, label='paste(italic(R)^2,\" = 0.176")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=0.55,y=0.35, label='paste(italic(R)^2,\" = 0.251")',parse=TRUE, size=0.3528*8)
 
 #####
 # 5m Chl
 #####
-B.pb<-gamlss(propAC-0.0001 ~ pb(chl), data = score.env5 %>% dplyr::select(chl,propAC) , family="BE")
-pAC.c5<-gamlss(propAC-0.0001 ~ chl, data = score.env5 %>% dplyr::select(chl,propAC) , family="BE")
-B<-gamlss(propAC-0.0001 ~ 1, data = score.env5 %>% dplyr::select(chl,propAC) , family="BE")
-AICc(B.pb) #-36.1 # no support for curve
-AICc(pAC.c5) # -36.1# support for linear
-AICc(B) # -14.0
+B.pb<-gamlss(propAC-0.0001 ~ pb(chl), data = score.env5j %>% dplyr::select(chl,propAC) , family="BE")
+pAC.c5<-gamlss(propAC-0.0001 ~ chl, data = score.env5j %>% dplyr::select(chl,propAC) , family="BE")
+B<-gamlss(propAC-0.0001 ~ 1, data = score.env5j %>% dplyr::select(chl,propAC) , family="BE")
+AICc(B.pb) #-30.9 # no support for curve
+AICc(pAC.c5) # -30.9# support for linear
+AICc(B) # -8.7
 
 pred.pAC.c5<-predict(pAC.c5, se=T, type="response")
 
 summary(pAC.c5)
-Rsq(pAC.c5)#0.467
+Rsq(pAC.c5)#0.486
 
 lower.pAC.c5 <- as.vector(pred.pAC.c5$fit) - as.vector(pred.pAC.c5$se.fit*qt(0.975,df=df.residual(pAC.c5)))
 upper.pAC.c5 <- as.vector(pred.pAC.c5$fit) + as.vector(pred.pAC.c5$se.fit*qt(0.975,df=df.residual(pAC.c5)))
 fit.pAC.c5 <- as.vector(pred.pAC.c5$fit)
 
-newdata.pAC.c5 <- data.frame(chl=score.env5$chl,
+newdata.pAC.c5 <- data.frame(chl=score.env5j$chl,
                              fit=fit.pAC.c5, 
                              lower=lower.pAC.c5, 
                              upper=upper.pAC.c5)
@@ -617,7 +631,7 @@ newdata.pAC.c5 <- data.frame(chl=score.env5$chl,
 chl.5.pAC <- ggplot(newdata.pAC.c5, aes(y=fit, x=chl)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=chl), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=chl), color='black')+
-  geom_point(aes(y=propAC, x=chl), data=score.env5, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=chl), data=score.env5j, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("5 m depth")+
@@ -633,29 +647,29 @@ chl.5.pAC <- ggplot(newdata.pAC.c5, aes(y=fit, x=chl)) +
   )+
   
   annotate(geom='text', x=1,y=0.95, label='c', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=0.55,y=0.25, label='paste(italic(R)^2,\" = 0.467")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=0.55,y=0.25, label='paste(italic(R)^2,\" = 0.486")',parse=TRUE, size=0.3528*8)
 #####
 # 2m tss
 #####
-B.pb<-gamlss(propAC-0.0001 ~ pb(tss), data = score.env2 %>% dplyr::select(tss,propAC) , family="BE")
-pAC.t2<-gamlss(propAC-0.0001 ~ tss, data = score.env2 %>% dplyr::select(tss,propAC) , family="BE")
-B<-gamlss(propAC-0.0001 ~ 1, data = score.env2 %>% dplyr::select(tss,propAC) , family="BE")
-AICc(B.pb) #-53.7 # no support for curve
-AICc(B.l) # -53.7 # support for linear
-AICc(B) # -50.0
+B.pb<-gamlss(propAC-0.0001 ~ pb(tss), data = score.env2j %>% dplyr::select(tss,propAC) , family="BE")
+pAC.t2<-gamlss(propAC-0.0001 ~ tss, data = score.env2j %>% dplyr::select(tss,propAC) , family="BE")
+B<-gamlss(propAC-0.0001 ~ 1, data = score.env2j %>% dplyr::select(tss,propAC) , family="BE")
+AICc(B.pb) #-51.7 # no support for curve
+AICc(pAC.t2) # -51.7 # support for linear
+AICc(B) # -47.4
 
 plot(pAC.t2) # ok. 
 
 pred.pAC.t2<-predict(pAC.t2, se=T, type="response")
 
 summary(pAC.t2)
-Rsq(pAC.t2)#0.172
+Rsq(pAC.t2)#0.210
 
 lower.pAC.t2 <- as.vector(pred.pAC.t2$fit) - as.vector(pred.pAC.t2$se.fit*qt(0.975,df=df.residual(pAC.t2)))
 upper.pAC.t2 <- as.vector(pred.pAC.t2$fit) + as.vector(pred.pAC.t2$se.fit*qt(0.975,df=df.residual(pAC.t2)))
 fit.pAC.t2 <- as.vector(pred.pAC.t2$fit)
 
-newdata.pAC.t2 <- data.frame(tss=score.env2$tss,
+newdata.pAC.t2 <- data.frame(tss=score.env2j$tss,
                              fit=fit.pAC.t2, 
                              lower=lower.pAC.t2, 
                              upper=upper.pAC.t2)
@@ -663,7 +677,7 @@ newdata.pAC.t2 <- data.frame(tss=score.env2$tss,
 tss.2.pAC <- ggplot(newdata.pAC.t2, aes(y=fit, x=tss)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=tss), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=tss), color='black')+
-  geom_point(aes(y=propAC, x=tss), data=score.env2, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=tss), data=score.env2j, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[2])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("2 m depth")+
@@ -679,30 +693,30 @@ tss.2.pAC <- ggplot(newdata.pAC.t2, aes(y=fit, x=tss)) +
   )+
   
   annotate(geom='text', x=3,y=0.95, label='b', size=0.3528*9, hjust=-0.5, vjust=0)+
-  annotate(geom='text', x=1.5,y=0.35, label='paste(italic(R)^2,\" = 0.172")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=1.5,y=0.35, label='paste(italic(R)^2,\" = 0.210")',parse=TRUE, size=0.3528*8)
 
 #####
 # 5m tss
 #####
-B.pb<-gamlss(propAC-0.0001 ~ pb(tss), data = score.env5 %>% dplyr::select(tss,propAC) , family="BE")
-pAC.t5<-gamlss(propAC-0.0001 ~ tss, data = score.env5 %>% dplyr::select(tss,propAC) , family="BE")
-B<-gamlss(propAC-0.0001 ~ 1, data = score.env5 %>% dplyr::select(tss,propAC) , family="BE")
-AICc(B.pb) #-21 # no support for curve
-AICc(B.l) # -21 # no support for linear
-AICc(B) # -14
+B.pb<-gamlss(propAC-0.0001 ~ pb(tss), data = score.env5j %>% dplyr::select(tss,propAC) , family="BE")
+pAC.t5<-gamlss(propAC-0.0001 ~ tss, data = score.env5j %>% dplyr::select(tss,propAC) , family="BE")
+B<-gamlss(propAC-0.0001 ~ 1, data = score.env5j %>% dplyr::select(tss,propAC) , family="BE")
+AICc(B.pb) #-14.8 # no support for curve
+AICc(pAC.t5) # -14.8 # no support for linear
+AICc(B) # -8.7
 
 plot(pAC.t5) # ok. 
 
 pred.pAC.t5<-predict(pAC.t5, se=T, type="response")
 
 summary(pAC.t5)
-Rsq(pAC.t5)#0.213
+Rsq(pAC.t5)#0.203
 
 lower.pAC.t5 <- as.vector(pred.pAC.t5$fit) - as.vector(pred.pAC.t5$se.fit*qt(0.975,df=df.residual(pAC.t5)))
 upper.pAC.t5 <- as.vector(pred.pAC.t5$fit) + as.vector(pred.pAC.t5$se.fit*qt(0.975,df=df.residual(pAC.t5)))
 fit.pAC.t5 <- as.vector(pred.pAC.t5$fit)
 
-newdata.pAC.t5 <- data.frame(tss=score.env5$tss,
+newdata.pAC.t5 <- data.frame(tss=score.env5j$tss,
                             fit=fit.pAC.t5, 
                             lower=lower.pAC.t5, 
                             upper=upper.pAC.t5)
@@ -710,7 +724,7 @@ newdata.pAC.t5 <- data.frame(tss=score.env5$tss,
 tss.5.pAC <- ggplot(newdata.pAC.t5, aes(y=fit, x=tss)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=tss), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=tss), color='black')+
-  geom_point(aes(y=propAC, x=tss), data=score.env5, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=tss), data=score.env5j, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[2])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("5 m depth")+
@@ -726,10 +740,10 @@ tss.5.pAC <- ggplot(newdata.pAC.t5, aes(y=fit, x=tss)) +
   )+
   
   annotate(geom='text', x=2.3,y=0.95, label='d', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=1.1,y=0.25, label='paste(italic(R)^2,\" = 0.213")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=1.1,y=0.25, label='paste(italic(R)^2,\" = 0.203")',parse=TRUE, size=0.3528*8)
 
 
-png('Figure1.png', width=3.4, height=4, units="in", res=300)
+png('output/FigureA1.png', width=3.4, height=4, units="in", res=300)
 grid.arrange(chl.2.pAC,tss.2.pAC,
              chl.5.pAC,tss.5.pAC,
              nrow=2)
