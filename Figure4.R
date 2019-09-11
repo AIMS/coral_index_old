@@ -243,9 +243,11 @@ library(grid)
 b = textGrob(label=expression(Discharge~("10"~km^3)), gp=gpar(fontsize=9))
 
 
-png('Figure4.png', width=3.4, height=4, units="in", res=300)
+png('output/Figure4.png', width=3.4, height=4, units="in", res=300)
  grid.arrange(wt, bd, wh, f, nrow=2, bottom=b, left=textGrob(label='Change in index score',  gp=gpar(fontsize=9), rot=90))
  dev.off()
 
  
-
+ pdf('output/Figure4.pdf', width=3.4, height=4)
+ grid.arrange(wt, bd, wh, f, nrow=2, bottom=b, left=textGrob(label='Change in index score',  gp=gpar(fontsize=9), rot=90))
+ dev.off()

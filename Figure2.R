@@ -219,7 +219,15 @@ g_legend<-function(p1){
   return(legend)}
 
 
-png('Figure2.png', width=7, height=6, units="in", res=300)
+png('output/Figure2.png', width=7, height=6, units="in", res=300)
+grid.arrange(arrangeGrob(p1+ theme(legend.position='none'), 
+                         p2+ theme(legend.position='none'), 
+                         p3+ theme(legend.position='none'), 
+                         p4+ theme(legend.position='none'), left='Index or indicator score'), 
+             g_legend(p1 + theme(legend.position='bottom')), ncol=1, nrow=2,heights=c(1.8,0.2))
+dev.off()
+
+pdf('output/Figure2.pdf', width=7, height=6)
 grid.arrange(arrangeGrob(p1+ theme(legend.position='none'), 
                          p2+ theme(legend.position='none'), 
                          p3+ theme(legend.position='none'), 

@@ -544,6 +544,12 @@ grid.arrange(chl.2.index,chl.5.index,
              tss.5.ch, chl.5.comp.p, nrow=3)
 dev.off()
 
+pdf('output/Figure1.pdf', width=3.4, height=6)
+grid.arrange(chl.2.index,chl.5.index,
+             chl.2.ma,chl.5.ma,
+             tss.5.ch, chl.5.comp.p, nrow=3)
+dev.off()
+
 #####################
 # Juveniles proportion AC v TURB
 #################
@@ -744,6 +750,12 @@ tss.5.pAC <- ggplot(newdata.pAC.t5, aes(y=fit, x=tss)) +
 
 
 png('output/FigureA1.png', width=3.4, height=4, units="in", res=300)
+grid.arrange(chl.2.pAC,tss.2.pAC,
+             chl.5.pAC,tss.5.pAC,
+             nrow=2)
+dev.off()
+
+pdf('output/FigureA1.pdf', width=3.4, height=4)
 grid.arrange(chl.2.pAC,tss.2.pAC,
              chl.5.pAC,tss.5.pAC,
              nrow=2)

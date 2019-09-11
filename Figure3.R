@@ -273,9 +273,11 @@ mid_row<-plot_grid(bp3, bp4, rel_widths=c(1,1), nrow=1)
 bot_row<-plot_grid(bp5,lab.p, rel_widths=c(1.162,0.838), nrow=1)
 
 
- png('Figure3.png', width=3.4, height=6, units="in", res=300)
+ png('output/Figure3.png', width=3.4, height=6, units="in", res=300)
  grid.arrange(top_row, mid_row, bot_row, nrow=3, left=grid.text(label = 'Change in score', rot=90, gp=gpar(fontsize=9)))
  dev.off()
  
-
+ pdf('output/Figure3.pdf', width=3.4, height=6)
+ grid.arrange(top_row, mid_row, bot_row, nrow=3, left=grid.text(label = 'Change in score', rot=90, gp=gpar(fontsize=9)))
+ dev.off()
 
