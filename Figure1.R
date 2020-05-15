@@ -7,6 +7,27 @@ library(gridExtra)
 load(file='output/coral.RData')
 load(file='data/bom.month.RData')
 
+#### consistent theme for plots
+theme_a<-function(base_size=7){
+  theme_classic(base_size=base_size) +
+    theme(strip.background=element_blank(),
+          strip.text=element_blank(),
+          #axis.title.x=element_blank(),
+          plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
+          panel.spacing=unit(c(0),"lines"),
+          axis.title.y=element_blank(),
+          axis.text.x=element_text(size=7),
+          axis.text.y=element_text(size=7),
+          plot.title = element_text(hjust=0.5, size=rel(1)),
+          axis.line.x=element_line(),axis.line.y=element_line(),
+          legend.position="bottom",
+          legend.title = element_blank()
+    )
+}
+
+#conversion for size back to points of annotations
+Size=0.3528*7
+
 
 coral.mean<-coral %>% 
   dplyr::select(NRM_REGION, REEF,DEPTH,VISIT_NO,juv5.d.nf,CoralCover.score, Change.score.linear.mean,juv.score,ma.score,composition.score) %>%
@@ -70,21 +91,13 @@ chl.2.index <- ggplot(newdata.i.c2, aes(y=fit, x=chl)) +
   geom_line(aes(y=fit, x=chl), color='black')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Index score')+
-  geom_point(aes(y=index, x=chl), data=score.env2, size=1.1, color='dark grey')+
-  theme_classic(base_size=9)+
+  theme_a()+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   ggtitle("2 m depth")+
-  geom_rug(aes(y=1,x=chl), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
-  
-  annotate(geom='text', x=-Inf,y=0.95, label='a', size=0.3528*9, hjust=-0.5, vjust=0)+
-  annotate(geom='text', x=0.7,y=0.9, label='paste(italic(R)^2,\" = 0.184")',parse=TRUE, size=0.3528*8)
+  geom_point(aes(y=index, x=chl), data=score.env2, size=1.1, color='darkgrey')+
+ # geom_rug(aes(y=1,x=chl), sides='b')+
+  annotate(geom='text', x=-Inf,y=0.95, label='a)', size=Size, hjust=-0.5, vjust=0)+
+  annotate(geom='text', x=0.7,y=0.9, label='paste(italic(R)^2,\" = 0.184")',parse=TRUE, size=Size)
 
 # 5m Chl
 
@@ -114,24 +127,16 @@ newdata.i.c5 <- data.frame(chl=score.env5$chl,
 chl.5.index<- ggplot(newdata.i.c5, aes(y=fit, x=chl)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=chl), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=chl), color='black')+
-  geom_point(aes(y=index, x=chl), data=score.env5, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Index score')+
-  theme_classic(base_size=9)+
+  theme_a()+
   ggtitle("5 m depth")+
-  geom_rug(aes(y=1,x=chl), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  geom_point(aes(y=index, x=chl), data=score.env5, size=1.1, colour='darkgrey')+
+  #geom_rug(aes(y=1,x=chl), sides='b')+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=-Inf,y=0.95, label='b', size=0.3528*9, hjust=-0.5, vjust=0)+
-  annotate(geom='text', x=0.7,y=0.9, label='paste(italic(R)^2,\" = 0.305")',parse=TRUE, size=0.3528*8)
-
+  annotate(geom='text', x=-Inf,y=0.95, label='b)', size=Size, hjust=-0.5, vjust=0)+
+  annotate(geom='text', x=0.7,y=0.9, label='paste(italic(R)^2,\" = 0.305")',parse=TRUE, size=Size)
 
 #TSS
 #####
@@ -239,23 +244,16 @@ newdata.ma.c2 <- data.frame(chl=score.env2$chl,
 chl.2.ma <- ggplot(newdata.ma.c2, aes(y=fit, x=chl)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=chl), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=chl), color='black')+
-  geom_point(aes(y=ma.score, x=chl), data=score.env2, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Macroalgae score')+
   ggtitle("2 m depth")+
-  theme_classic(base_size=9)+
-  geom_rug(aes(y=1,x=chl), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  theme_a()+
+ # geom_rug(aes(y=1,x=chl), sides='b')+
+  geom_point(aes(y=ma.score, x=chl), data=score.env2, size=1.1, colour='darkgrey')+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=1.0,y=0.95, label='c', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=0.7,y=0.82, label='paste(italic(R)^2,\" = 0.206")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=1.0,y=0.95, label='c)', size=Size, hjust=0, vjust=0)+
+  annotate(geom='text', x=0.7,y=0.82, label='paste(italic(R)^2,\" = 0.206")',parse=TRUE, size=Size)
 
 # 5m Chl
 
@@ -285,23 +283,16 @@ newdata.ma.c5 <- data.frame(chl=score.env5$chl,
 chl.5.ma <- ggplot(newdata.ma.c5, aes(y=fit, x=chl)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=chl), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=chl), color='black')+
-  geom_point(aes(y=ma.score, x=chl), data=score.env5, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Macroalgae score')+
   ggtitle("5 m depth")+
-  theme_classic(base_size=9)+
-  geom_rug(aes(y=1,x=chl), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  theme_a()+
+ # geom_rug(aes(y=1,x=chl), sides='b')+
+  geom_point(aes(y=ma.score, x=chl), data=score.env5, size=1.1, colour='darkgrey')+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=1,y=0.95, label='d', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=0.7,y=0.85, label='paste(italic(R)^2,\" = 0.266")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=1,y=0.95, label='d)', size=Size, hjust=0, vjust=0)+
+  annotate(geom='text', x=0.7,y=0.85, label='paste(italic(R)^2,\" = 0.266")',parse=TRUE, size=Size)
 
 # 2m tss
 #####
@@ -432,23 +423,15 @@ newdata.ch.t5 <- data.frame(tss=score.env5$tss,
 tss.5.ch <- ggplot(newdata.ch.t5, aes(y=fit, x=tss)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=tss), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=tss), color='black')+
-  geom_point(aes(y=Change.score.linear.mean, x=tss), data=score.env5, size=1.1, colour='dark grey')+
   scale_x_continuous(xlabs[2])+
   scale_y_continuous('Change score')+
   ggtitle("5 m depth")+
-  theme_classic(base_size=9)+
-  geom_rug(aes(y=1,x=tss), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  theme_a()+
+  geom_point(aes(y=Change.score.linear.mean, x=tss), data=score.env5, size=1.1, colour='darkgrey')+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=-Inf,y=0.95, label='e', size=0.3528*9, hjust=-0.5, vjust=0)+
-  annotate(geom='text', x=1.3,y=0.81, label='paste(italic(R)^2,\" = 0.108")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=-Inf,y=0.95, label='e)', size=Size, hjust=-0.5, vjust=0)+
+  annotate(geom='text', x=1.3,y=0.81, label='paste(italic(R)^2,\" = 0.108")',parse=TRUE, size=Size)
 
 
 ##########################
@@ -459,8 +442,6 @@ library(broom)
 
 #It makes more sense to compare only the long-term aspect of this variable, so score in 2017 rather than the average
 summary(coral.17$composition.score) # 2 NA's
-
-
 
 #2m chl
 #####
@@ -479,8 +460,7 @@ AICc(mod1)#86.8
 N <- nrow(coral.17 %>% filter(!is.na(composition.score) & DEPTH=='5'))
 m.ll <- logLik(mod.ch5)[1]
 n.ll <- logLik(mod1)[1]
-cs.R2 <- 1 - exp(-2/N ∗(m.ll - n.ll)) #0.127
-
+cs.R2 <- 1 - exp((-2/N)*(m.ll - n.ll)) #0.127
 
 library(effects)
 plot(allEffects(mod.ch5))
@@ -509,17 +489,11 @@ dat=as.data.frame(Effect('chl',mod.ch5, xlevels=list(chl=score.env5$chl)))
    theme_classic(base_size=9)+
    ggtitle("5 m depth")+
    geom_rug(aes(y=1,x=chl), sides='b')+
-   theme(strip.background=element_blank(),
-         strip.text=element_blank(),
-         plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-         plot.title = element_text(hjust=0.5, size=rel(1), vjust=-0.5),
-         panel.spacing=unit(c(0),"lines"),
-         axis.title.y=element_text(vjust=1, size=8),
-         axis.title.x=element_text(vjust=1, size=8)
-   )+
+   theme_a()+
+   theme(plot.title = element_text(hjust=0.5, size=rel(1), vjust=-0.5))+
    
-   annotate(geom='text', x=-Inf,y=0.95, label='f', size=0.3528*9, hjust=-0.5, vjust=0)+
-   annotate(geom='text', x=0.6,y=0.9, label='paste(italic(R)^2,\" = 0.127")',parse=TRUE, size=0.3528*8)
+   annotate(geom='text', x=-Inf,y=0.95, label='f)', size=Size, hjust=-0.5, vjust=0)+
+   annotate(geom='text', x=0.6,y=0.9, label='paste(italic(R)^2,\" = 0.127")',parse=TRUE, size=Size)
 
 
 #2m tss
@@ -538,17 +512,22 @@ AICc(mod)#88.9 no support for tss
 AICc(mod1)#86.8
 
 
-png('output/Figure1.png', width=3.4, height=6, units="in", res=300)
-grid.arrange(chl.2.index,chl.5.index,
-             chl.2.ma,chl.5.ma,
-             tss.5.ch, chl.5.comp.p, nrow=3)
-dev.off()
+############# FIGURE 1****************************************************************
+ggsave('output/Figure1 1column.png', width=90, height=150, units="mm", dpi=600,
+       plot=grid.arrange(chl.2.index,chl.5.index,
+                         chl.2.ma,chl.5.ma,
+                         tss.5.ch, chl.5.comp.p, nrow=3))
 
-pdf('output/Figure1.pdf', width=3.4, height=6)
-grid.arrange(chl.2.index,chl.5.index,
-             chl.2.ma,chl.5.ma,
-             tss.5.ch, chl.5.comp.p, nrow=3)
-dev.off()
+ggsave('output/Figure1 1column.pdf', width=90, height=150, units="mm", dpi=600,
+       plot=grid.arrange(chl.2.index,chl.5.index,
+                         chl.2.ma,chl.5.ma,
+                         tss.5.ch, chl.5.comp.p, nrow=3))
+
+ggsave('output/Figure1 1column.jpg', width=90, height=150, units="mm", dpi=600,
+       plot=grid.arrange(chl.2.index,chl.5.index,
+                         chl.2.ma,chl.5.ma,
+                         tss.5.ch, chl.5.comp.p, nrow=3))
+####***********************************************************************************
 
 #####################
 # Juveniles proportion AC v TURB
@@ -592,23 +571,15 @@ newdata.pAC.c2 <- data.frame(chl=score.env2j$chl,
 chl.2.pAC <- ggplot(newdata.pAC.c2, aes(y=fit, x=chl)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=chl), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=chl), color='black')+
-  geom_point(aes(y=propAC, x=chl), data=score.env2j, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=chl), data=score.env2j, size=1.1, colour='darkgrey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("2 m depth")+
-  theme_classic(base_size=9)+
-  geom_rug(aes(y=1,x=chl), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  theme_a()+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=1,y=0.95, label='a', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=0.55,y=0.35, label='paste(italic(R)^2,\" = 0.251")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=1,y=0.95, label='a)', size=Size, hjust=0, vjust=0)+
+  annotate(geom='text', x=0.55,y=0.35, label='paste(italic(R)^2,\" = 0.251")',parse=TRUE, size=Size)
 
 #####
 # 5m Chl
@@ -637,23 +608,15 @@ newdata.pAC.c5 <- data.frame(chl=score.env5j$chl,
 chl.5.pAC <- ggplot(newdata.pAC.c5, aes(y=fit, x=chl)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=chl), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=chl), color='black')+
-  geom_point(aes(y=propAC, x=chl), data=score.env5j, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=chl), data=score.env5j, size=1.1, colour='darkgrey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("5 m depth")+
-  theme_classic(base_size=9)+
-  geom_rug(aes(y=1,x=chl), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  theme_a()+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=1,y=0.95, label='c', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=0.55,y=0.25, label='paste(italic(R)^2,\" = 0.486")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=1,y=0.95, label='c)', size=Size, hjust=0, vjust=0)+
+  annotate(geom='text', x=0.55,y=0.25, label='paste(italic(R)^2,\" = 0.486")',parse=TRUE, size=Size)
 #####
 # 2m tss
 #####
@@ -683,23 +646,15 @@ newdata.pAC.t2 <- data.frame(tss=score.env2j$tss,
 tss.2.pAC <- ggplot(newdata.pAC.t2, aes(y=fit, x=tss)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=tss), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=tss), color='black')+
-  geom_point(aes(y=propAC, x=tss), data=score.env2j, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=tss), data=score.env2j, size=1.1, colour='darkgrey')+
   scale_x_continuous(xlabs[2])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("2 m depth")+
   theme_classic(base_size=9)+
-  geom_rug(aes(y=1,x=tss), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=3,y=0.95, label='b', size=0.3528*9, hjust=-0.5, vjust=0)+
-  annotate(geom='text', x=1.5,y=0.35, label='paste(italic(R)^2,\" = 0.210")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=3,y=0.95, label='b)', size=Size, hjust=-0.5, vjust=0)+
+  annotate(geom='text', x=1.5,y=0.35, label='paste(italic(R)^2,\" = 0.210")',parse=TRUE, size=Size)
 
 #####
 # 5m tss
@@ -730,33 +685,29 @@ newdata.pAC.t5 <- data.frame(tss=score.env5j$tss,
 tss.5.pAC <- ggplot(newdata.pAC.t5, aes(y=fit, x=tss)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=tss), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=tss), color='black')+
-  geom_point(aes(y=propAC, x=tss), data=score.env5j, size=1.1, colour='dark grey')+
+  geom_point(aes(y=propAC, x=tss), data=score.env5j, size=1.1, colour='darkgrey')+
   scale_x_continuous(xlabs[2])+
   scale_y_continuous('Proportion Acroporidae')+
   ggtitle("5 m depth")+
-  theme_classic(base_size=9)+
-  geom_rug(aes(y=1,x=tss), sides='b')+
-  theme(strip.background=element_blank(),
-        strip.text=element_blank(),
-        plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-        plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-        panel.spacing=unit(c(0),"lines"),
-        axis.title.y=element_text(vjust=1, size=8),
-        axis.title.x=element_text(vjust=1, size=8)
-  )+
+  theme_a()+
+  theme(plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5))+
   
-  annotate(geom='text', x=2.3,y=0.95, label='d', size=0.3528*9, hjust=0, vjust=0)+
-  annotate(geom='text', x=1.1,y=0.25, label='paste(italic(R)^2,\" = 0.203")',parse=TRUE, size=0.3528*8)
+  annotate(geom='text', x=2.3,y=0.95, label='d)', size=Size, hjust=0, vjust=0)+
+  annotate(geom='text', x=1.1,y=0.25, label='paste(italic(R)^2,\" = 0.203")',parse=TRUE, size=Size)
 
+############# FIGURE S1****************************************************************
+ggsave('output/FigureS1 1column.png', width=90, height=100, units="mm", dpi=600,
+       plot=grid.arrange(chl.2.pAC,tss.2.pAC,
+                         chl.5.pAC,tss.5.pAC,
+                         nrow=2))
 
-png('output/FigureA1.png', width=3.4, height=4, units="in", res=300)
-grid.arrange(chl.2.pAC,tss.2.pAC,
-             chl.5.pAC,tss.5.pAC,
-             nrow=2)
-dev.off()
+ggsave('output/FigureS1 1column.pdf', width=90, height=100, units="mm", dpi=600,
+       plot=grid.arrange(chl.2.pAC,tss.2.pAC,
+                         chl.5.pAC,tss.5.pAC,
+                         nrow=2))
 
-pdf('output/FigureA1.pdf', width=3.4, height=4)
-grid.arrange(chl.2.pAC,tss.2.pAC,
-             chl.5.pAC,tss.5.pAC,
-             nrow=2)
-dev.off()
+ggsave('output/FigureS1 1column.jpg', width=90, height=100, units="mm", dpi=600,
+       plot=grid.arrange(chl.2.pAC,tss.2.pAC,
+                         chl.5.pAC,tss.5.pAC,
+                         nrow=2))
+####***********************************************************************************

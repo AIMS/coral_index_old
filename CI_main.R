@@ -25,7 +25,7 @@ source('CI_EstimateScores.R')
 #                 DISTURBANCE - categorical field idenifying major disturbances, n=none, f=flood, d=disease, s=cyclone/storm, c=crown-of-thorns, m=multiple, d=disease
 #                 juv5.d.nf - density of juvenile corals, exclusive of the genus Fungia.
 #
-#distibutions of gompertz equation parameter estimates used to predict coral cover increase
+# distibutions of gompertz equation parameter estimates used to predict coral cover increase
 #   data/gomp.acr.5.Rdata - esimates for family acroproidae at 5m depth
 #   data/gomp.acr.2.Rdata - esimates for family acroproidae at 2m depth
 #   data/gomp.oth.5.Rdata - esimates for all other hard corals at 5m depth
@@ -100,6 +100,7 @@ source('Figure3.R')
 #   output/coral.RData
 #   
 # Output = Figure 3.
+#        = Table 4
 ###########################################################################################
 
 source('Figure4.R')

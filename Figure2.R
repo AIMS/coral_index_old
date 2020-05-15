@@ -1,7 +1,9 @@
 
 #Coral Worm plot with disturubances for paper
 
-
+library(gtable)
+library(gridExtra)
+library(grid)
 library(lubridate)
 library(tidyverse)
 
@@ -35,22 +37,27 @@ lims <- rev(LETTERS[1:5])
 index.scores=boot.region.metric.sum
 indicators=boot.region.score.sum
 
-theme_a<-function(base_size=11){
+theme_a<-function(base_size=7){
   theme_classic(base_size=base_size) +
     theme(strip.background=element_blank(),
           strip.text=element_blank(),
           axis.title.x=element_blank(),
-          plot.margin=unit(c(0.5,0.5,1,1),"lines"),
+          plot.margin=unit(c(0.5,0.5,0.5,0.5),"lines"),
+          legend.margin=unit(c(0.1,0.1,0.1,0.1),"lines"),
+          legend.spacing.y = unit(0.5,"lines"),
           panel.spacing=unit(c(0),"lines"),
           axis.title.y=element_blank(),
-          axis.text.x=element_text(size=10),
-          axis.text.y=element_text(size=10),
+          axis.text.x=element_text(size=7),
+          axis.text.y=element_text(size=7),
           plot.title = element_text(hjust=0.5, size=rel(1)),
           axis.line.x=element_line(),axis.line.y=element_line(),
           legend.position="bottom",
           legend.title = element_blank()
            )
 }
+
+#conversion for size back to points
+Size=0.3528*7
 
 
 ################
@@ -69,7 +76,8 @@ p1 <- ggplot(dtt, aes(y=Mean, x=Year)) +
   scale_y_continuous('', breaks=seq(0,1,by=0.2), limits=c(0,1),expand=c(0,0))+
   scale_fill_manual('', values=trafficLightPalette, limits=lims, guide=FALSE)+
   ggtitle(region)+
-  theme_a()
+  theme_a()+
+  theme(legend.key.height=unit(0.8,"line"))
   
 p1 <- p1+
   annotate('rect', xmin=2012, xmax=2015, ymin=0, ymax=0.9, alpha=0.2)+
@@ -77,14 +85,15 @@ p1 <- p1+
   annotate('rect', xmin=2016.8, xmax=2017.2, ymin=0, ymax=0.90, alpha=0.15, fill='black')+
   annotate('rect', xmin=2010.8, xmax=2011.2, ymin=0, ymax=0.90, alpha=0.15, fill='black')+
   annotate('rect', xmin=2013.8, xmax=2014.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
-  annotate('text',x=2014, y=0.95, label='s', size=0.3528*11)+
-  annotate('text',x=2013.5, y=0.95, label='c', size=0.3528*11)+
-  annotate('text',x=2017, y=0.95, label='b', size=0.3528*11)+
-  annotate('text',x=2006, y=0.95, label='s', size=0.3528*11)+
-  annotate('text',x=2011, y=0.95, label='s', size=0.3528*11)+
-  geom_line(data=dt, aes(y=Mean, x=Year,color=Score), size=0.75)+
+  annotate('text',x=2014, y=0.95, label='s', size=Size)+
+  annotate('text',x=2013.5, y=0.95, label='c', size=Size)+
+  annotate('text',x=2017, y=0.95, label='b', size=Size)+
+  annotate('text',x=2006, y=0.95, label='s', size=Size)+
+  annotate('text',x=2011, y=0.95, label='s', size=Size)+
+  geom_line(data=dt, aes(y=Mean, x=Year,color=Score), size=0.5)+
   scale_color_manual('Indicator',breaks=c('Coral change', 'Coral composition', 'Coral cover', 'Juvenile density', 'Macroalgal cover','Overall'),
-                     values=c('red','blue','green','magenta','tan', 'black')) 
+                     #values=c('red','blue','green','magenta','tan', 'black')) 
+                     values=c('#E69F00','#009E73','#007282','#F0E442','#CC79A7','black')) 
 
 p1<-p1+
   guides(color=guide_legend(nrow=2 ,byrow=F))
@@ -94,8 +103,8 @@ p1=p1+geom_blank(data=dt, aes(y=Mean, x=Year))+
   theme(legend.key.width=unit(1,'cm'),
         legend.text=element_text(margin=margin(r=15, unit='pt')))+
   geom_linerange(aes(ymin=lower, ymax=upper))+
-  geom_line(size=0.75) + 
-  geom_point(data=dtt,aes(fill=Grade), shape=21, size=4)
+  geom_line(size=0.5) + 
+  geom_point(data=dtt,aes(fill=Grade), shape=21, size=3.5)
 
 #############
 region="Burdekin"
@@ -116,12 +125,13 @@ p2 <- p2+
   annotate('rect', xmin=2005.8, xmax=2006.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
   annotate('rect', xmin=2016.8, xmax=2017.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
   annotate('rect', xmin=2010.8, xmax=2011.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
-  annotate('text',x=2017, y=0.95, label='b', size=0.3528*11)+
-  annotate('text',x=2006, y=0.95, label='s', size=0.3528*11)+
-  annotate('text',x=2011, y=0.95, label='s', size=0.3528*11)+
-  geom_line(data=dt, aes(y=Mean, x=Year,color=Score), size=0.75)+
+  annotate('text',x=2017, y=0.95, label='b', size=Size)+
+  annotate('text',x=2006, y=0.95, label='s', size=Size)+
+  annotate('text',x=2011, y=0.95, label='s', size=Size)+
+  geom_line(data=dt, aes(y=Mean, x=Year,color=Score), size=0.5)+
   scale_color_manual('Indicator',breaks=c('Coral change', 'Coral composition', 'Coral cover', 'Juvenile density', 'Macroalgal cover','Overall'),
-                     values=c('red','blue','green','magenta','tan', 'black')) +
+                     values=c('#E69F00','#009E73','#007282','#F0E442','#CC79A7','black')) +
+                     #values=c('red','blue','green','magenta','tan', 'black')) +
   guides(color=guide_legend(nrow=2 ,byrow=F))
 
 #add the index scores
@@ -129,8 +139,8 @@ p2=p2+geom_blank(data=dt, aes(y=Mean, x=Year, shape='Overall', linetype='Overall
   theme(legend.key.width=unit(1,'cm'),
         legend.text=element_text(margin=margin(r=15, unit='pt')))+
   geom_linerange(aes(ymin=lower, ymax=upper))+
-  geom_line(size=0.75) + 
-  geom_point(data=dtt,aes(fill=Grade), shape=21, size=4)
+  geom_line(size=0.5) + 
+  geom_point(data=dtt,aes(fill=Grade), shape=21, size=3.5)
   
 
 #############
@@ -151,11 +161,12 @@ p3 <- ggplot(dtt, aes(y=Mean, x=Year)) +
 p3 <- p3+
   annotate('rect', xmin=2016.8, xmax=2017.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
   annotate('rect', xmin=2009.8, xmax=2010.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
-  annotate('text',x=2010, y=0.95, label='s', size=0.3528*11)+
-  annotate('text',x=2017, y=0.95, label='s', size=0.3528*11)+
-  geom_line(data=dt, aes(y=Mean, x=Year,color=Score), size=0.75)+
+  annotate('text',x=2010, y=0.95, label='s', size=Size)+
+  annotate('text',x=2017, y=0.95, label='s', size=Size)+
+  geom_line(data=dt, aes(y=Mean, x=Year,color=Score), size=0.5)+
   scale_color_manual('Indicator',breaks=c('Coral change', 'Coral composition', 'Coral cover', 'Juvenile density', 'Macroalgal cover','Overall'),
-                     values=c('red','blue','green','magenta','tan', 'black'))+
+                     values=c('#E69F00','#009E73','#007282','#F0E442','#CC79A7','black')) +
+                     #values=c('red','blue','green','magenta','tan', 'black'))+
   guides(color=guide_legend(nrow=2 ,byrow=F))
 
 #add the index scores
@@ -163,8 +174,8 @@ p3=p3+geom_blank(data=dt, aes(y=Mean, x=Year, shape='Overall', linetype='Overall
   theme(legend.key.width=unit(1,'cm'),
         legend.text=element_text(margin=margin(r=15, unit='pt')))+
   geom_linerange(aes(ymin=lower, ymax=upper))+
-  geom_line(size=0.75) + 
-  geom_point(data=dtt,aes(fill=Grade), shape=21, size=4)
+  geom_line(size=0.5) + 
+  geom_point(data=dtt,aes(fill=Grade), shape=21, size=3.5)
  
 
 #############
@@ -188,14 +199,14 @@ p4 <- p4+
   annotate('rect', xmin=2009.8, xmax=2010.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
   annotate('rect', xmin=2014.8, xmax=2015.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
   annotate('rect', xmin=2010.8, xmax=2011.2, ymin=0, ymax=0.9, alpha=0.15, fill='black')+
-  annotate('text',x=2006, y=0.95, label='b', size=0.3528*11)+
-  annotate('text',x=2010, y=0.95, label='s', size=0.3528*11)+
-  annotate('text',x=2011, y=0.95, label='f', size=0.3528*11)+
-  annotate('text',x=2015, y=0.95, label='s', size=0.3528*11)+
-  geom_line(data=dt, aes(y=Mean, x=Year,color=Score),size=0.75)+
+  annotate('text',x=2006, y=0.95, label='b', size=Size)+
+  annotate('text',x=2010, y=0.95, label='s', size=Size)+
+  annotate('text',x=2011, y=0.95, label='f', size=Size)+
+  annotate('text',x=2015, y=0.95, label='s', size=Size)+
+  geom_line(data=dt, aes(y=Mean, x=Year,color=Score),size=0.5)+
   scale_color_manual('Indicator',breaks=c('Coral change', 'Coral composition', 'Coral cover', 'Juvenile density', 'Macroalgal cover','Overall'),
-                     #values=c('#E69F00','#D55E00','#007282','#F0E442','#56B4E9','black')) 
-                    values=c('red','blue','green','magenta','tan', 'black'))+
+                     values=c('#E69F00','#009E73','#007282','#F0E442','#CC79A7','black')) +
+                    #values=c('red','blue','green','magenta','tan', 'black'))+
   guides(color=guide_legend(nrow=2 ,byrow=F))
   
 
@@ -204,12 +215,10 @@ p4=p4+geom_blank(data=dt, aes(y=Mean, x=Year, shape='Overall', linetype='Overall
   theme(legend.key.width=unit(1,'cm'),
         legend.text=element_text(margin=margin(r=15, unit='pt')))+
   geom_linerange(aes(ymin=lower, ymax=upper))+
-  geom_line(size=0.75) + 
-  geom_point(data=dtt,aes(fill=Grade), shape=21, size=4)
+  geom_line(size=0.5) + 
+  geom_point(data=dtt,aes(fill=Grade), shape=21, size=3.5)
 
 
-library(gtable)
-library(gridExtra)
 
 
 g_legend<-function(p1){
@@ -218,19 +227,33 @@ g_legend<-function(p1){
   legend <- tmp$grobs[[leg]]
   return(legend)}
 
+yLab=textGrob(label='Index or indicator score', gp=gpar(fontsize=8), rot=90)
 
-png('output/Figure2.png', width=7, height=6, units="in", res=300)
-grid.arrange(arrangeGrob(p1+ theme(legend.position='none'), 
+
+
+ggsave('output/Figure2 1.5column.png', width=140, height=110, units="mm", dpi=600,
+plot=grid.arrange(arrangeGrob(p1+ theme(legend.position='none'), 
                          p2+ theme(legend.position='none'), 
                          p3+ theme(legend.position='none'), 
-                         p4+ theme(legend.position='none'), left='Index or indicator score'), 
-             g_legend(p1 + theme(legend.position='bottom')), ncol=1, nrow=2,heights=c(1.8,0.2))
-dev.off()
+                         p4+ theme(legend.position='none'), 
+                         left=yLab),
+                  g_legend(p1 + theme(legend.position='bottom')),
+                  ncol=1, nrow=2,heights=c(1.8,0.2)))
 
-pdf('output/Figure2.pdf', width=7, height=6)
-grid.arrange(arrangeGrob(p1+ theme(legend.position='none'), 
-                         p2+ theme(legend.position='none'), 
-                         p3+ theme(legend.position='none'), 
-                         p4+ theme(legend.position='none'), left='Index or indicator score'), 
-             g_legend(p1 + theme(legend.position='bottom')), ncol=1, nrow=2,heights=c(1.8,0.2))
-dev.off()
+ggsave('output/Figure2 1.5column.pdf', width=140, height=110, units="mm", dpi=600,
+       plot=grid.arrange(arrangeGrob(p1+ theme(legend.position='none'), 
+                                     p2+ theme(legend.position='none'), 
+                                     p3+ theme(legend.position='none'), 
+                                     p4+ theme(legend.position='none'), 
+                                     left=yLab),
+                         g_legend(p1 + theme(legend.position='bottom')),
+                         ncol=1, nrow=2,heights=c(1.8,0.2)))
+
+ggsave('output/Figure2 1.5column.jpg', width=140, height=110, units="mm", dpi=600,
+       plot=grid.arrange(arrangeGrob(p1+ theme(legend.position='none'), 
+                                     p2+ theme(legend.position='none'), 
+                                     p3+ theme(legend.position='none'), 
+                                     p4+ theme(legend.position='none'), 
+                                     left=yLab),
+                         g_legend(p1 + theme(legend.position='bottom')),
+                         ncol=1, nrow=2,heights=c(1.8,0.2)))

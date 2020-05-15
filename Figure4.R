@@ -9,6 +9,28 @@ library(MuMIn)
 load('data/discharge.annual.RData')
 load(file='output/coral.RData')
 
+#consitent plotting
+theme_a<-function(base_size=7){
+  theme_classic(base_size=base_size) +
+    theme(strip.background=element_blank(),
+          strip.text=element_blank(),
+          axis.title.x=element_blank(),
+          plot.margin=unit(c(0.5,0.5,0.5,0.5),"lines"),
+          legend.margin=unit(c(0.1,0.1,0.1,0.1),"lines"),
+          legend.spacing.y = unit(0.5,"lines"),
+          panel.spacing=unit(c(0),"lines"),
+          axis.title.y=element_blank(),
+          axis.text.x=element_text(size=7),
+          axis.text.y=element_text(size=7),
+          plot.title = element_text(hjust=0.5, size=rel(1)),
+          axis.line.x=element_line(),axis.line.y=element_line(),
+          legend.position="bottom",
+          legend.title = element_blank()
+    )
+}
+
+#conversion for size back to points
+Size=0.3528*7
 
 ######
 
@@ -172,66 +194,66 @@ newdata.f <- data.frame(dis=dis2.f,
 # Plots
 #######
 
-theme_b<-function(base_size=9){
-  theme_classic(base_size=base_size) +
-    theme(strip.background=element_blank(),
-          strip.text=element_blank(),
-          axis.title.x=element_blank(),
-          plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
-          panel.spacing=unit(c(0),"lines"),
-          axis.title.y=element_blank(),
-          axis.text.x=element_text(vjust=1,size=8),
-          axis.text.y=element_text(vjust=1,size=8),
-          plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
-          axis.line.x=element_line(),axis.line.y=element_line()
-          )
-                               }
+# theme_b<-function(base_size=9){
+#   theme_classic(base_size=base_size) +
+#     theme(strip.background=element_blank(),
+#           strip.text=element_blank(),
+#           axis.title.x=element_blank(),
+#           plot.margin=unit(c(0.5,0.5,0,0.5),"lines"),
+#           panel.spacing=unit(c(0),"lines"),
+#           axis.title.y=element_blank(),
+#           axis.text.x=element_text(vjust=1,size=8),
+#           axis.text.y=element_text(vjust=1,size=8),
+#           plot.title = element_text(hjust=0.5, size=rel(1),vjust=-0.5),
+#           axis.line.x=element_line(),axis.line.y=element_line()
+#           )
+#                                }
 
 wt <- ggplot(newdata.wt, aes(y=fit, x=dis)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=dis), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=dis), color='black')+
-  geom_point(aes(y=index.dif, x=dis2), data=wet2, size=1.1, colour='dark grey')+
+  geom_point(aes(y=index.dif, x=dis2), data=wet2, size=1, colour='darkgrey')+
   scale_x_continuous(xlabs[1],, breaks=c(2,3,4))+
   scale_y_continuous('Change in index score',limits=c(-0.2,0.2))+
   ggtitle("Wet Tropics")+
-  theme_b()+
-  annotate(geom='text', x=-Inf,y= 0.19, label='a)', size=0.3528*9, hjust=-1, vjust=0)+
-  annotate(geom='text', x=2.5,y=-0.18, label='paste(italic(R)^2,\" = 0.194")',parse=TRUE, size=0.3528*8)+
+  theme_a()+
+  annotate(geom='text', x=-Inf,y= 0.19, label='a)', size=Size, hjust=-1, vjust=0)+
+  annotate(geom='text', x=2.5,y=-0.18, label='paste(italic(R)^2,\" = 0.194")',parse=TRUE, size=Size)+
   geom_hline(yintercept=0, color='black', linetype='dashed')
 
 bd <- ggplot(newdata.b, aes(y=fit, x=dis)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=dis), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=dis), color='black')+
-  geom_point(aes(y=index.dif, x=dis2), data=b2, size=1.1, colour='dark grey')+
+  geom_point(aes(y=index.dif, x=dis2), data=b2, size=1, colour='darkgrey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Change in index score',limits=c(-0.2,0.2))+
   ggtitle("Burdekin")+
-  theme_b()+
-  annotate(geom='text', x=-Inf,y= 0.19, label='b)', size=0.3528*9, hjust=-1, vjust=0)+
-  annotate(geom='text', x=1.2,y=-0.18, label='paste(italic(R)^2,\" = 0.166")',parse=TRUE, size=0.3528*8)+
+  theme_a()+
+  annotate(geom='text', x=-Inf,y= 0.19, label='b)', size=Size, hjust=-1, vjust=0)+
+  annotate(geom='text', x=1.2,y=-0.18, label='paste(italic(R)^2,\" = 0.166")',parse=TRUE, size=Size)+
   geom_hline(yintercept=0, color='black', linetype='dashed')
 
 wh <- ggplot(newdata.wh, aes(y=fit, x=dis)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=dis), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=dis), color='black')+
-  geom_point(aes(y=index.dif, x=dis2), data=wh2, size=1.1, colour='dark grey')+
+  geom_point(aes(y=index.dif, x=dis2), data=wh2, size=1, colour='darkgrey')+
   scale_x_continuous(xlabs[1])+
   scale_y_continuous('Change in index score',limits=c(-0.2,0.2))+
   ggtitle("Mackay Whitsunday")+
-  theme_b()+
-    annotate(geom='text', x=-Inf,y= 0.19, label='c)', size=0.3528*9, hjust=-1, vjust=0)+
-  annotate(geom='text', x=0.4,y=-0.18, label='paste(italic(R)^2,\" = 0.051")',parse=TRUE, size=0.3528*8)+
+  theme_a()+
+    annotate(geom='text', x=-Inf,y= 0.19, label='c)', size=Size, hjust=-1, vjust=0)+
+  annotate(geom='text', x=0.4,y=-0.18, label='paste(italic(R)^2,\" = 0.051")',parse=TRUE, size=Size)+
   geom_hline(yintercept=0, color='black', linetype='dashed')
 
 f <- ggplot(newdata.f, aes(y=fit, x=dis)) +
   geom_ribbon(aes(ymin=lower, ymax=upper, x=dis), fill='grey',alpha=0.5)+
   geom_line(aes(y=fit, x=dis), color='black')+
-  geom_point(aes(y=index.dif, x=dis2), data=f2, size=1.1, colour='dark grey')+
+  geom_point(aes(y=index.dif, x=dis2), data=f2, size=1, colour='darkgrey')+
   scale_y_continuous('Change in index score',limits=c(-0.25,0.15))+
   ggtitle("Fitzroy")+
-  theme_b()+
-  annotate(geom='text', x=-Inf,y= 0.14, label='d)', size=0.3528*9, hjust=-1, vjust=0)+
-  annotate(geom='text', x=1,y=-0.23, label='paste(italic(R)^2,\" = 0.277")',parse=TRUE, size=0.3528*8)+
+  theme_a()+
+  annotate(geom='text', x=-Inf,y= 0.14, label='d)', size=Size, hjust=-1, vjust=0)+
+  annotate(geom='text', x=1,y=-0.23, label='paste(italic(R)^2,\" = 0.277")',parse=TRUE, size=Size)+
   geom_hline(yintercept=0, color='black', linetype='dashed')
 
 
@@ -240,14 +262,18 @@ library(ggplot2)
 library(grid)
 
 
-b = textGrob(label=expression(Discharge~("10"~km^3)), gp=gpar(fontsize=9))
+b = textGrob(label=expression(Discharge~("10"~km^3)), gp=gpar(fontsize=7))
+############# FIGURE 3****************************************************************
+ggsave('output/Figure4 1column.png', width=90, height=100, units="mm", dpi=600,
+       plot=grid.arrange(wt, bd, wh, f, nrow=2, bottom=b, 
+                         left=textGrob(label='Change in index score',  gp=gpar(fontsize=7), rot=90)))
 
+ggsave('output/Figure4 1column.jpg', width=90, height=100, units="mm", dpi=600,
+       plot=grid.arrange(wt, bd, wh, f, nrow=2, bottom=b, 
+                         left=textGrob(label='Change in index score',  gp=gpar(fontsize=7), rot=90)))
 
-png('output/Figure4.png', width=3.4, height=4, units="in", res=300)
- grid.arrange(wt, bd, wh, f, nrow=2, bottom=b, left=textGrob(label='Change in index score',  gp=gpar(fontsize=9), rot=90))
- dev.off()
+ggsave('output/Figure4 1column.pdf', width=90, height=100, units="mm", dpi=600,
+       plot=grid.arrange(wt, bd, wh, f, nrow=2, bottom=b, 
+                         left=textGrob(label='Change in index score',  gp=gpar(fontsize=7), rot=90)))
+####***********************************************************************************
 
- 
- pdf('output/Figure4.pdf', width=3.4, height=4)
- grid.arrange(wt, bd, wh, f, nrow=2, bottom=b, left=textGrob(label='Change in index score',  gp=gpar(fontsize=9), rot=90))
- dev.off()
